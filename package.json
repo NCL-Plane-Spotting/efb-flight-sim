@@ -1,0 +1,16 @@
+{
+  "name": "efb-flight-sim",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "apps/shared"
+  ],
+  "scripts": {
+    "bridge:start": "npm --workspace apps/bridge run start",
+    "mobile:start": "npm --workspace apps/mobile run start",
+    "dev": "concurrently \"npm run bridge:start\" \"npm run mobile:start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
