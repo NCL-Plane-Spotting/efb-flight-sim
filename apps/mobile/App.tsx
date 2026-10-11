@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 type FlightState = {
   timestamp: number;
@@ -61,30 +54,30 @@ export default function App() {
   const [flightData, setFlightData] = useState<FlightState | null>(null);
 
   useEffect(() => {
-    const socket = new WebSocket(MOBILE_WS_URL);
+    const ws = new WebSocket(MOBILE_WS_URL);
 
-    socket.onopen = () => {
-      console.log('Connected to telemetry bridge');
+    ws.onopen = () => {
+      console.log('Connected to WiFi bridge');
     };
 
-    socket.onmessage = (event) => {
+    ws.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data) as FlightState;
-        setFlightData(data);
+        const payload = JSON.parse(event.data) as FlightState;
+        setFlightData(payload);
       } catch (error) {
-        console.warn('Invalid telemetry payload:', error);
+        console.warn('Invalid telemetry payload', error);
       }
     };
 
-    socket.onerror = (error) => {
-      console.warn('WebSocket error:', error);
+    ws.onerror = (error) => {
+      console.warn('WebSocket error', error);
     };
 
-    socket.onclose = () => {
-      console.log('WebSocket closed');
+    ws.onclose = () => {
+      console.log('Closed connection to bridge');
     };
 
-    return () => socket.close();
+    return () => ws.close();
   }, []);
 
   return (
@@ -111,16 +104,8 @@ export default function App() {
                 <Text style={styles.value}>{Math.round(flightData.airdata.indicatedAirspeed)} kt</Text>
               </View>
               <View style={styles.card}>
-                <Text style={styles.label}>Ground Speed</Text>
-                <Text style={styles.value}>{Math.round(flightData.airdata.groundSpeed)} kt</Text>
-              </View>
-              <View style={styles.card}>
                 <Text style={styles.label}>Heading</Text>
                 <Text style={styles.value}>{Math.round(flightData.position.heading)}°</Text>
-              </View>
-              <View style={styles.card}>
-                <Text style={styles.label}>Vertical Speed</Text>
-                <Text style={styles.value}>{Math.round(flightData.airdata.verticalSpeed)} fpm</Text>
               </View>
               <View style={styles.card}>
                 <Text style={styles.label}>Fuel</Text>
