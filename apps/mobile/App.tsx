@@ -1,6 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
-import type { FlightState } from '../../shared/src/index';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
+type FlightState = {
+  timestamp: number;
+  aircraft: {
+    type: string;
+    callsign: string;
+    registration: string;
+  };
+  position: {
+    latitude: number;
+    longitude: number;
+    altitude: number;
+    heading: number;
+    pitch: number;
+    roll: number;
+  };
+  airdata: {
+    indicatedAirspeed: number;
+    trueAirspeed: number;
+    groundSpeed: number;
+    verticalSpeed: number;
+    pressureAltitude: number;
+  };
+  engine: {
+    rpm: number;
+    fuelFlow: number;
+    fuelRemaining: number;
+    oilTemp: number;
+  };
+  nav: {
+    activeWaypoint: string;
+    nextWaypoint: string;
+    distanceRemaining: number;
+    bearing: number;
+  };
+  environment: {
+    windDirection: number;
+    windSpeed: number;
+    temperature: number;
+    pressure: number;
+  };
+  systems: {
+    flaps: number;
+    gear: boolean;
+    autopilot: boolean;
+  };
+};
 
 const MOBILE_WS_URL = 'ws://192.168.1.20:4001';
 
@@ -11,7 +64,7 @@ export default function App() {
     const socket = new WebSocket(MOBILE_WS_URL);
 
     socket.onopen = () => {
-      console.log('Connected to flight bridge');
+      console.log('Connected to telemetry bridge');
     };
 
     socket.onmessage = (event) => {
@@ -19,12 +72,12 @@ export default function App() {
         const data = JSON.parse(event.data) as FlightState;
         setFlightData(data);
       } catch (error) {
-        console.warn('Invalid telemetry payload', error);
+        console.warn('Invalid telemetry payload:', error);
       }
     };
 
     socket.onerror = (error) => {
-      console.warn('WebSocket error', error);
+      console.warn('WebSocket error:', error);
     };
 
     socket.onclose = () => {
@@ -58,8 +111,16 @@ export default function App() {
                 <Text style={styles.value}>{Math.round(flightData.airdata.indicatedAirspeed)} kt</Text>
               </View>
               <View style={styles.card}>
+                <Text style={styles.label}>Ground Speed</Text>
+                <Text style={styles.value}>{Math.round(flightData.airdata.groundSpeed)} kt</Text>
+              </View>
+              <View style={styles.card}>
                 <Text style={styles.label}>Heading</Text>
                 <Text style={styles.value}>{Math.round(flightData.position.heading)}°</Text>
+              </View>
+              <View style={styles.card}>
+                <Text style={styles.label}>Vertical Speed</Text>
+                <Text style={styles.value}>{Math.round(flightData.airdata.verticalSpeed)} fpm</Text>
               </View>
               <View style={styles.card}>
                 <Text style={styles.label}>Fuel</Text>
@@ -78,10 +139,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#08111d',
+    backgroundColor: '#09131d',
   },
   content: {
-    padding: 16,
+    padding: 18,
   },
   title: {
     color: '#ffffff',
@@ -94,6 +155,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#25496c',
   },
   grid: {
     flexDirection: 'row',
@@ -105,6 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 6,
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   value: {
     color: '#ffffff',
@@ -114,6 +178,6 @@ const styles = StyleSheet.create({
   pending: {
     color: '#dfeafc',
     fontSize: 16,
-    marginTop: 16,
+    marginTop: 12,
   },
 });

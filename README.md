@@ -1,60 +1,61 @@
 # EFB Flight Sim
 
-A local WiFi-connected EFB for Microsoft Flight Simulator 2024, designed for iPad-first use and a Windows PC bridge.
+A local WiFi-connected EFB for Microsoft Flight Simulator 2024, built for an iPad-first workflow and a Windows PC bridge.
 
 ## Architecture
 
-- `apps/bridge`: Windows PC service that reads sim telemetry and exposes it over WebSocket
-- `apps/mobile`: React Native app for iPad
-- `apps/shared`: telemetry contracts and types shared by both sides
+- `apps/bridge`: Windows PC service that reads simulator telemetry and exposes it over WebSocket
+- `apps/mobile`: React Native / Expo app for iPad
+- `apps/shared`: shared telemetry contracts and types used by both sides
 
-## Goals
+## What works today
 
-- Real-time flight data over local WiFi
-- Live cockpit dashboards
-- Checklist and navigation modules
-- Future airport/weather/performance features
+- local WiFi bridge scaffold
+- shared telemetry model
+- mobile app shell with live dashboard connection logic
+- a first-pass dashboard that displays real-time mock telemetry from the bridge
 
-## Quick start
+## Current flow
 
-1. Open the bridge app and start the local telemetry server
-2. Connect the iPad app to the PC IP on the local WiFi network
-3. Stream flight data into the dashboard
+1. Start the bridge server on the PC
+2. Connect the iPad app to the local WiFi IP on the PC
+3. Receive live flight data via WebSocket
+4. Render the dashboard in the app
 
-## First milestone
+## First milestone delivered
 
-- Live dashboard: altitude, IAS, GS, heading, vertical speed
-- Navigation summary: active waypoint, ETA, distance remaining
-- Checklist screen
-- Basic map placeholder screen
+- bridge startup server
+- live telemetry payload format
+- mobile dashboard screen shell
+- network connection to local WiFi endpoint
 
 ## Planned phases
 
-### Phase 1: live telemetry
-- SimConnect bridge
-- WebSocket feed
-- dashboard data rendering
+### Phase 1: live simulator data
+- SimConnect bridge layer
+- real telemetry ingest
+- live dashboard stream
 
-### Phase 2: operational utility
+### Phase 2: operational EFB
 - flight planning
 - checklists
-- airport data
-- weather
+- airport and route data
+- nav / waypoint display
 
-### Phase 3: advanced EFB
+### Phase 3: advanced capabilities
+- weather integration
 - charts
-- performance pages
-- fuel and weight calculations
-- aircraft systems view
+- performance calculations
+- aircraft systems, fuel, and weight calculations
 
 ## Local connection example
 
-The bridge listens on a local IP such as:
+The bridge listens on a local endpoint such as:
 
 - `ws://192.168.1.20:4001`
 
-The mobile app will connect to this address over WiFi.
+The mobile app connects to this address over WiFi on the same network.
 
 ## Notes
 
-This repository is deliberately scaffolded as a starter project rather than a complete production app. The next step is to implement the bridge telemetry layer and then the dashboard screens.
+This repo is intentionally structured as a working starter project rather than a complete production app. The next implementation step is to replace the mock telemetry stream with real MSFS data and then expand the dashboard into operational pages.

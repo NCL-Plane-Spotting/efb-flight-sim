@@ -3,7 +3,7 @@ import type { FlightState } from '../../shared/src/index';
 
 const PORT = 4001;
 
-const mockTelemetry: FlightState = {
+const telemetryState: FlightState = {
   timestamp: Date.now(),
   aircraft: {
     type: 'Cessna 172',
@@ -56,16 +56,21 @@ wss.on('connection', (socket) => {
   console.log('Client connected');
 
   const interval = setInterval(() => {
-    const payload: FlightState = {
-      ...mockTelemetry,
+    const nextPayload: FlightState = {
+      ...telemetryState,
       timestamp: Date.now(),
       position: {
-        ...mockTelemetry.position,
-        altitude: mockTelemetry.position.altitude + Math.sin(Date.now() / 1000) * 8,
+        ...telemetryState.position,
+        altitude: telemetryState.position.altitude + Math.sin(Date.now() / 1000) * 8,
+        heading: (telemetryState.position.heading + (Date.now() / 2500) % 360) % 360,
+      },
+      airdata: {
+        ...telemetryState.airdata,
+        indicatedAirspeed: telemetryState.airdata.indicatedAirspeed + Math.sin(Date.now() / 1500) * 4,
       },
     };
 
-    socket.send(JSON.stringify(payload));
+    socket.send(JSON.stringify(nextPayload));
   }, 1000);
 
   socket.on('close', () => {

@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "EFB Flight Sim",
+    "slug": "efb-flight-sim",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}
