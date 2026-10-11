@@ -2,60 +2,92 @@
 
 A local WiFi-connected EFB stack for Microsoft Flight Simulator 2024.
 
-## Architecture
+## Purpose
 
-- Windows bridge: .NET app that connects to the simulator and exposes telemetry over WiFi
-- Mobile app: Expo + React Native for iPad
-- Shared contract: JSON payload used by both sides
+This project is a starter platform for an iPad-first Electronic Flight Bag (EFB) that connects over local WiFi to a Windows PC bridge. The bridge reads live flight data from MSFS and publishes it to the mobile app.
 
-## Current repository state
+## Repository layout
 
-- local bridge starter with WebSocket listener
-- Expo mobile dashboard starter
-- shared telemetry model
-- Windows .NET bridge project scaffold
+- `apps/mobile` — Expo + React Native app for iPad
+- `apps/bridge-dotnet` — Windows-side .NET bridge prototype
+- `apps/bridge` — Node-style local bridge prototype for testing
+- `docs` — architecture and telemetry documentation
 
-## Planned live data flow
+## Architecture overview
 
-1. The Windows bridge reads aircraft telemetry from MSFS
-2. It converts it into a standard JSON flight-state payload
-3. It sends that payload over WebSocket to the iPad
-4. The mobile app renders live flight information
+- The Windows PC hosts the telemetry bridge
+- The bridge reads flight data from MSFS using SimConnect or a mock data source
+- The bridge sends JSON telemetry over WebSocket to the iPad
+- The mobile app renders the live dashboard, navigation view, and checklist data
 
-## Real simulator integration target
+## Local connection
 
-The bridge should read live data such as:
-- latitude, longitude, altitude
-- heading, pitch, roll
-- IAS, TAS, GS, vertical speed
-- engine RPM, fuel remaining, oil temp
-- gear, flaps, autopilot state
-
-## Milestones
-
-### Phase 1: Live telemetry
-- Establish the simulator connection
-- Send real-time flight data to the client
-- Display altitude, IAS, heading, fuel, and nav values
-
-### Phase 2: Operations
-- route planning
-- checklists
-- airport info
-- nav page
-
-### Phase 3: Advanced EFB
-- weather
-- charts
-- performance calculations
-- aircraft systems overview
-
-## Example local endpoint
+The mobile app connects to the bridge over WiFi, for example:
 
 ```text
 ws://192.168.1.20:4001/
 ```
 
+## What is included
+
+- live telemetry schema
+- Windows bridge starter
+- Expo mobile starter app
+- dashboard, nav, and checklist UI structure
+- architecture notes and SimConnect variable recommendations
+
+## Project phases
+
+### Phase 1 — Live telemetry
+- connect to MSFS telemetry source
+- stream data over WiFi
+- render live altitude, IAS, heading, fuel, and nav values
+
+### Phase 2 — Operational EFB
+- route planning
+- checklists
+- runway / airport data
+- map and nav integration
+
+### Phase 3 — Advanced capability
+- weather overlays
+- charts
+- performance calculations
+- aircraft systems monitoring
+
+## Quick start
+
+### Windows bridge
+
+```bash
+dotnet run --project apps/bridge-dotnet/EfbBridge.csproj -- --mode mock
+```
+
+### Mobile app
+
+```bash
+cd apps/mobile
+npx expo start
+```
+
+## Data contract
+
+The app and bridge share a common JSON structure for live flight data. The shared keys include:
+
+- timestamp
+- aircraft
+- position
+- airdata
+- engine
+- nav
+- environment
+- systems
+
+## Documents
+
+- `docs/ARCHITECTURE.md`
+- `docs/SIMCONNECT_VARIABLES.md`
+
 ## Notes
 
-This is a real project scaffold for an iPad-first EFB. The next technical step is to integrate the Windows bridge with the simulator telemetry source and stream that data to the mobile app without mock values.
+This project is intentionally configured as a real architecture starter rather than a mock-only demo. The key next improvement is moving the bridge from mock data to live SimConnect values while leaving the mobile app data contract unchanged.

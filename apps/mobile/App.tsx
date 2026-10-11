@@ -1,57 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
-
-type FlightState = {
-  timestamp: number;
-  aircraft: {
-    type: string;
-    callsign: string;
-    registration: string;
-  };
-  position: {
-    latitude: number;
-    longitude: number;
-    altitude: number;
-    heading: number;
-    pitch: number;
-    roll: number;
-  };
-  airdata: {
-    indicatedAirspeed: number;
-    trueAirspeed: number;
-    groundSpeed: number;
-    verticalSpeed: number;
-    pressureAltitude: number;
-  };
-  engine: {
-    rpm: number;
-    fuelFlow: number;
-    fuelRemaining: number;
-    oilTemp: number;
-  };
-  nav: {
-    activeWaypoint: string;
-    nextWaypoint: string;
-    distanceRemaining: number;
-    bearing: number;
-  };
-  environment: {
-    windDirection: number;
-    windSpeed: number;
-    temperature: number;
-    pressure: number;
-  };
-  systems: {
-    flaps: number;
-    gear: boolean;
-    autopilot: boolean;
-  };
-};
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import DashboardScreen from './screens/DashboardScreen';
+import NavScreen from './screens/NavScreen';
+import ChecklistScreen from './screens/ChecklistScreen';
+import type { FlightState } from './types';
 
 const MOBILE_WS_URL = 'ws://192.168.1.20:4001';
 
 export default function App() {
   const [flightData, setFlightData] = useState<FlightState | null>(null);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'nav' | 'checklist'>('dashboard');
 
   useEffect(() => {
     const ws = new WebSocket(MOBILE_WS_URL);
@@ -80,43 +38,31 @@ export default function App() {
     return () => ws.close();
   }, []);
 
+  const tabs = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'nav', label: 'Nav' },
+    { key: 'checklist', label: 'Checklist' },
+  ] as const;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>EFB Flight Dashboard</Text>
 
-        {flightData ? (
-          <>
-            <View style={styles.card}>
-              <Text style={styles.label}>Aircraft</Text>
-              <Text style={styles.value}>{flightData.aircraft.type}</Text>
-              <Text style={styles.value}>Callsign: {flightData.aircraft.callsign}</Text>
-            </View>
+      <View style={styles.tabBar}>
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            onPress={() => setActiveTab(tab.key)}
+            style={[styles.tabButton, activeTab === tab.key && styles.tabButtonActive]}
+          >
+            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>{tab.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-            <View style={styles.grid}>
-              <View style={styles.card}>
-                <Text style={styles.label}>Altitude</Text>
-                <Text style={styles.value}>{Math.round(flightData.position.altitude)} ft</Text>
-              </View>
-              <View style={styles.card}>
-                <Text style={styles.label}>IAS</Text>
-                <Text style={styles.value}>{Math.round(flightData.airdata.indicatedAirspeed)} kt</Text>
-              </View>
-              <View style={styles.card}>
-                <Text style={styles.label}>Heading</Text>
-                <Text style={styles.value}>{Math.round(flightData.position.heading)}°</Text>
-              </View>
-              <View style={styles.card}>
-                <Text style={styles.label}>Fuel</Text>
-                <Text style={styles.value}>{Math.round(flightData.engine.fuelRemaining)} gal</Text>
-              </View>
-            </View>
-          </>
-        ) : (
-          <Text style={styles.pending}>Connecting to the telemetry bridge...</Text>
-        )}
-      </ScrollView>
+      {activeTab === 'dashboard' && <DashboardScreen flightData={flightData} />}
+      {activeTab === 'nav' && <NavScreen flightData={flightData} />}
+      {activeTab === 'checklist' && <ChecklistScreen flightData={flightData} />}
     </SafeAreaView>
   );
 }
@@ -126,43 +72,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#09131d',
   },
-  content: {
-    padding: 18,
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  card: {
-    backgroundColor: '#12263c',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#25496c',
-  },
-  grid: {
+  tabBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    backgroundColor: '#0f1d2a',
+    borderBottomWidth: 1,
+    borderBottomColor: '#234b69',
   },
-  label: {
+  tabButton: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  tabButtonActive: {
+    backgroundColor: '#12263c',
+    borderBottomWidth: 2,
+    borderBottomColor: '#61dafb',
+  },
+  tabText: {
     color: '#9bb7d1',
-    fontSize: 12,
-    marginBottom: 6,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  value: {
-    color: '#ffffff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
-  pending: {
-    color: '#dfeafc',
-    fontSize: 16,
-    marginTop: 12,
+  tabTextActive: {
+    color: '#ffffff',
   },
 });
